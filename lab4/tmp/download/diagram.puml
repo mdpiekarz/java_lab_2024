@@ -1,0 +1,11 @@
+@startuml
+class Car {
+    + brand : String
+    + model : String
+    + year : int
+    --
+    + accelerate(speed: int) : void
+    + brake() : void
+    + turn(direction: String) : void
+}
+@enduml
