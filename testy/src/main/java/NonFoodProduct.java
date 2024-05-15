@@ -5,16 +5,12 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Scanner;
 
-public class NonFoodProduct {
+public class NonFoodProduct extends Product {
     Double[] prices;
-    String name;
 
     private NonFoodProduct(String name, Double[] prices) {
+        super(name);
         this.prices = prices;
-    }
-
-    public String getName(){
-        return name;
     }
 
     public static NonFoodProduct fromCsv(Path path) {
@@ -40,5 +36,9 @@ public class NonFoodProduct {
         }
     }
 
-
+    @Override
+    public double getPrice(int year, int month) {
+        int index = (year-2010) * 12 + (month-1);
+        return prices[index];
+    }
 }
