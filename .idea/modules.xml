@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/clientApp/clientApp.iml" filepath="$PROJECT_DIR$/clientApp/clientApp.iml" />
       <module fileurl="file://$PROJECT_DIR$/java_lab_2024.iml" filepath="$PROJECT_DIR$/java_lab_2024.iml" />
       <module fileurl="file://$PROJECT_DIR$/lab10/lab10.iml" filepath="$PROJECT_DIR$/lab10/lab10.iml" />
       <module fileurl="file://$PROJECT_DIR$/lab1_3/lab1_3.iml" filepath="$PROJECT_DIR$/lab1_3/lab1_3.iml" />
@@ -9,7 +10,7 @@
       <module fileurl="file://$PROJECT_DIR$/lab5/lab5.iml" filepath="$PROJECT_DIR$/lab5/lab5.iml" />
       <module fileurl="file://$PROJECT_DIR$/lab6/lab6.iml" filepath="$PROJECT_DIR$/lab6/lab6.iml" />
       <module fileurl="file://$PROJECT_DIR$/lab7/lab7.iml" filepath="$PROJECT_DIR$/lab7/lab7.iml" />
-      <module fileurl="file://$PROJECT_DIR$/site.iml" filepath="$PROJECT_DIR$/site.iml" />
+      <module fileurl="file://$PROJECT_DIR$/serverApp/serverApp.iml" filepath="$PROJECT_DIR$/serverApp/serverApp.iml" />
     </modules>
   </component>
 </project>
