@@ -1,35 +1,67 @@
 import java.io.*;
-import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 
 public class ClientThread extends Thread {
-    Socket socket;
-    Server server;
-    PrintWriter output;
+    public Socket getSocket() {
+        return socket;
+    }
 
-    ClientThread(Socket socket, Server server) {
+    private Socket socket;
+    private PrintWriter writer;
+    private Server server;
+    private String clientName = null;
+
+    public ClientThread(Socket socket, Server server) {
         this.socket = socket;
         this.server = server;
     }
 
-    @Override
-    public void run() {
+    public void run(){
         try {
-            BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            output = new PrintWriter(socket.getOutputStream(),true); //parametr true powoduje automatyczne opróznianie bufora po każdym wywołaniu println;
-            String msg;
-            while((msg = input.readLine()) != null) {
-                System.out.println("Received: " + msg);
-                server.broadcast(msg);
+            InputStream input = socket.getInputStream();
+            OutputStream output = socket.getOutputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+            writer = new PrintWriter(output, true);
+            String message;
+            while ((message = reader.readLine()) != null){
+                String prefix = message.substring(0,2);
+                String postfix = message.substring(2);
+                switch(prefix) {
+                    case "LO" -> login(postfix);
+                    case "BR" -> server.broadcast(this,postfix);
+                    case "WH" -> server.whisper(this,postfix);
+                    case "ON" -> server.online(this);
+                    case "FI" -> server.sendFile(this,postfix);
+                }
+
+                System.out.println(message);
             }
-            System.out.println("client closed");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.out.println("closed");
+            server.removeClient(this);
+        }
+        catch(SocketException e){
+            server.broadcastLogout(this);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
-    void send(String msg) {
-        //this.output.write(msg);
-        this.output.println(msg);
+    public void send(String message){
+        writer.println(message);
     }
+
+    public String getClientName() {
+        return clientName;
+    }
+
+    public void login(String name) {
+        clientName = name;
+        server.online(this);
+        server.broadcastLogin(this);
+    }
+
+
 }
+

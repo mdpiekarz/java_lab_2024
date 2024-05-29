@@ -9,7 +9,6 @@
         <module name="site" />
         <module name="site1" />
         <module name="testy" />
-        <module name="k1_2022" />
       </profile>
     </annotationProcessing>
   </component>

@@ -3,41 +3,116 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class Server {
-    ServerSocket listenerSocket;
-    List<ClientThread> clientThreads=new ArrayList<>();;
+    private ServerSocket serverSocket;
+    private List<ClientThread> clients = new ArrayList<>();
 
-    Server(int port){
-        //clientThreads = new ArrayList<>();
+    public Server(int port) {
         try {
-            listenerSocket = new ServerSocket(port);
+            this.serverSocket = new ServerSocket(port);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    void listen(){
-        System.out.println("Listening...");
-        while(true) {
-            Socket clientSocket = null;
+    public void listen(){
+        System.out.println("Oczekiwanie...");
+        while(true){
+            Socket clientSocket;
             try {
-                clientSocket = listenerSocket.accept();
-                System.out.println("New client connected");
-                ClientThread clientThread = new ClientThread(clientSocket, this);
-                clientThreads.add(clientThread);
-                clientThread.start();
+                clientSocket = serverSocket.accept();
+                ClientThread thread = new ClientThread(clientSocket, this);
+                clients.add(thread);
+                thread.start();
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
         }
     }
 
-    public void broadcast(String msg) {
-        for (ClientThread client : clientThreads) {
-            client.send(msg);
+    public void removeClient(ClientThread client) {
+        clients.remove(client);
+        broadcastLogout(client);
+    }
+
+    public void broadcast(ClientThread sender, String message){
+        for(var currentClient : clients)
+            currentClient.send(sender.getClientName()+": "+message);
+
+    }
+
+    public void broadcastLogin(ClientThread client) {
+        for(var currentClient : clients)
+            if(currentClient != client)
+                currentClient.send("LN: "+client.getClientName());
+
+    }
+
+    public void broadcastLogout(ClientThread client) {
+        for(var currentClient : clients)
+            if(currentClient != client) {
+                currentClient.send("LT:" + client.getClientName());
+                clients.remove(client);
+            }
+    }
+
+    private Optional<ClientThread> getClient(String clientName) {
+        return clients.stream()
+                .filter(client -> clientName.equals(client.getClientName()))
+                .findFirst();
+    }
+
+    public void whisper(ClientThread sender, String message) {
+        String[] messageArr = message.split(" ");
+        String recipientName = messageArr[0];
+
+        Optional<ClientThread> recipient = getClient(recipientName);
+        if(recipient.isPresent()) {
+            recipient.get().send("WH"+sender.getClientName()+" "+messageArr[1]);
         }
+        else sender.send("NU: "+recipientName);
+    }
+
+    public void online(ClientThread sender) {
+        String listString = clients.stream()
+                .map(ClientThread::getClientName)
+                .collect(Collectors.joining(" "));
+        sender.send("ON: "+listString);
+    }
+
+    public void sendFile(ClientThread sender, String message) throws IOException {
+        String[] messageArr = message.split(" ");
+        String recipientName = messageArr[0];
+        long fileSize = Long.parseLong(messageArr[1]);
+        String fileName = messageArr[2];
+
+        Optional<ClientThread> recipient = getClient(recipientName);
+
+        if(recipient.isPresent()) {
+            DataInputStream fileIn = new DataInputStream(sender.getSocket().getInputStream());
+            DataOutputStream fileOut = new DataOutputStream(recipient.get().getSocket().getOutputStream());
+
+            byte[] buffer = new byte[64];
+            long receivedSize = 0;
+            int count;
+
+            recipient.get().send("FI: "+sender.getClientName()+" "+fileSize+" "+fileName);
+            while (receivedSize < fileSize) {
+                count = fileIn.read(buffer);
+                receivedSize += count;
+                System.out.println(receivedSize+" "+(fileSize-receivedSize));
+                fileOut.write(buffer, 0, count);
+            }
+        }
+
+        else sender.send("NU: "+recipientName);
+
     }
 }
