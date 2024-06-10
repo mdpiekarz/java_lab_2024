@@ -27,6 +27,7 @@ public class Server {
             Socket clientSocket;
             try {
                 clientSocket = serverSocket.accept();
+                System.out.println("Nowy klient dołączył!");
                 ClientThread thread = new ClientThread(clientSocket, this);
                 clients.add(thread);
                 thread.start();
@@ -44,21 +45,21 @@ public class Server {
 
     public void broadcast(ClientThread sender, String message){
         for(var currentClient : clients)
-            currentClient.send(sender.getClientName()+": "+message);
+            currentClient.send("BR"+sender.getClientName()+": "+message);
 
     }
 
     public void broadcastLogin(ClientThread client) {
         for(var currentClient : clients)
             if(currentClient != client)
-                currentClient.send("LN: "+client.getClientName());
+                currentClient.send("LN"+client.getClientName());
 
     }
 
     public void broadcastLogout(ClientThread client) {
         for(var currentClient : clients)
             if(currentClient != client) {
-                currentClient.send("LT:" + client.getClientName());
+                currentClient.send("LT" + client.getClientName());
                 clients.remove(client);
             }
     }
@@ -77,14 +78,14 @@ public class Server {
         if(recipient.isPresent()) {
             recipient.get().send("WH"+sender.getClientName()+" "+messageArr[1]);
         }
-        else sender.send("NU: "+recipientName);
+        else sender.send("NU"+recipientName);
     }
 
     public void online(ClientThread sender) {
         String listString = clients.stream()
                 .map(ClientThread::getClientName)
                 .collect(Collectors.joining(" "));
-        sender.send("ON: "+listString);
+        sender.send("ON"+listString);
     }
 
     public void sendFile(ClientThread sender, String message) throws IOException {
