@@ -6,16 +6,11 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="site" />
-        <module name="GUIClient" />
-        <module name="site1" />
-        <module name="testy" />
-        <module name="breakuot" />
+        <module name="breakout" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="k1_2022" target="17" />
-      <module name="wrapper" target="1.5" />
+      <module name="breakout" target="19" />
     </bytecodeTargetLevel>
   </component>
 </project>
